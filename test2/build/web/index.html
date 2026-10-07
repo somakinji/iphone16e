@@ -82,6 +82,7 @@ async def custom_site():
         platform.window.addEventListener("click", platform.window.addEventListener and on_touch)
         # ★ ここまで追加 ★
 
+
         while not platform.window.MM.UME:
             await asyncio.sleep(.1)
 
@@ -294,9 +295,34 @@ function show_infobox() {
 
     <script src="https://pygame-web.github.io/cdn/0.9.3//browserfs.min.js"></script>
 
+    <!-- ★ 1. ここに <style> スクリプトを追加（または既存の <style> に追記） -->
+    <style>
+      /* 画面自体のスクロールを無効化 */
+      html, body {
+        touch-action: none !important;
+        overflow: hidden !important;
+        position: fixed;
+        width: 100%;
+        height: 100%;
+      }
+
+      /* ゲーム画面（キャンバス）でのスワイプによる画面揺れを防止 */
+      canvas {
+        touch-action: none !important;
+        -webkit-user-select: none;
+        user-select: none;
+      }
+    </style>
+
 </head>
 
 <body>
+     <!-- ★ 2. <body> の直下に、タッチ移動によるスロール防止 JS を追記 -->
+    <script>
+      document.addEventListener('touchmove', function(e) {
+        e.preventDefault();
+      }, { passive: false });
+    </script>
 
     <!-- ★ ここから追加 ★ -->
     <script>
@@ -310,6 +336,7 @@ function show_infobox() {
       }, { once: true });
     </script>
     <!-- ★ ここまで追加 ★ -->
+
 
     <div id="transfer" align=center>
 <!--        <div class="spinner" id='spinner'></div> -->
