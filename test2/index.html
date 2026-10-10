@@ -74,14 +74,6 @@ async def custom_site():
         platform.window.infobox.innerText = msg
         print("\n"*4, f"    * Waiting for media user engagement. {msg} *" , "\n"*4)
 
-        # ★ ここから追加（タッチ・クリックされたら強制的に進行させる） ★
-        def on_touch(event):
-            platform.window.MM.UME = True
-
-        platform.window.addEventListener("touchstart", platform.window.addEventListener and on_touch)
-        platform.window.addEventListener("click", platform.window.addEventListener and on_touch)
-        # ★ ここまで追加 ★
-
         while not platform.window.MM.UME:
             await asyncio.sleep(.1)
 
@@ -298,19 +290,6 @@ function show_infobox() {
 
 <body>
 
-    <!-- ★ ここから追加 ★ -->
-    <script>
-      window.addEventListener('touchstart', function() {
-        if (typeof AudioContext !== 'undefined') {
-          var audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-          if (audioCtx.state === 'suspended') {
-            audioCtx.resume();
-          }
-        }
-      }, { once: true });
-    </script>
-    <!-- ★ ここまで追加 ★ -->
-
     <div id="transfer" align=center>
 <!--        <div class="spinner" id='spinner'></div> -->
         <div class="emscripten" id="status">Downloading...</div>
@@ -453,6 +432,37 @@ frameborder="1"
         window.frames["iframe"].location = url;
     }
 
+    </script>
+    <!-- ★ 1. iOS画面スクロール・バウンス防止（画面固定） -->
+    <style>
+        html, body, canvas {
+            touch-action: none !important;
+            overflow: hidden !important;
+            position: fixed !important;
+            width: 100% !important;
+            height: 100% !important;
+            -webkit-user-select: none !important;
+            user-select: none !important;
+        }
+    </style>
+
+    <!-- ★ 2. iOSタッチ移動による画面ズレ防止 -->
+    <script>
+        document.addEventListener('touchmove', function(e) {
+            e.preventDefault();
+        }, { passive: false });
+    </script>
+
+    <!-- ★ 3. iOS Web AudioContext 音声自動再生ブロック解除 -->
+    <script>
+        window.addEventListener('touchstart', function() {
+            if (typeof AudioContext !== 'undefined') {
+                var audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                if (audioCtx.state === 'suspended') {
+                    audioCtx.resume();
+                }
+            }
+        }, { once: true });
     </script>
 
 </body>
