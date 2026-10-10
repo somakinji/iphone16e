@@ -1,4 +1,39 @@
-<html lang="en-us"><script src="https://pygame-web.github.io/cdn/0.9.3/pythons.js" type=module id="site" data-python="python3.12" data-LINES=42 data-COLUMNS=132 data-os="vtx,snd,gui" async defer>#<!--
+<html lang="en-us">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>test2</title>
+
+    <!-- ★ iOS画面スクロール・揺れ防止 CSS（最優先適用） -->
+    <style>
+      html, body {
+        touch-action: none !important;
+        overflow: hidden !important;
+        position: fixed !important;
+        width: 100% !important;
+        height: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+      }
+
+      #canvas, #canvas3d, canvas {
+        touch-action: none !important;
+        -webkit-user-select: none !important;
+        user-select: none !important;
+      }
+    </style>
+</head>
+<body>
+    <!-- ★ タッチ移動による画面ズレを物理的に停止 -->
+    <script>
+      document.addEventListener('touchmove', function(e) {
+        e.preventDefault();
+      }, { passive: false });
+    </script>
+
+    <!-- ここから下は元の pygbag スクリプト呼び出し -->
+    <script src="https://pygame-web.github.io/cdn/0.9.3/pythons.js" type="module" id="site" data-python="python3.12" data-LINES="42" data-COLUMNS="132" data-os="vtx,snd,gui" async defer>#<!--
+
 
 print("""
 Loading test2 from test2.apk
