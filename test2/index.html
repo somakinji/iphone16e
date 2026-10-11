@@ -446,36 +446,41 @@ frameborder="1"
         }
     </style>
 
-    <!-- ★ 2. タッチイベント・音声・pygbagメディアロック全自動解除 -->
+    <!-- ★ 2. フォーカス強制保持 & メディアロック解除 JS -->
     <script>
-        // Retinaディスプレイの動作エラー回避
+        // Retinaディスプレイのエラー回避
         window.devicePixelRatio = 1;
 
-        // タッチ移動（スクロール）を防止
+        // タッチ移動（スクロール）防止
         document.addEventListener('touchmove', function(e) {
             e.preventDefault();
         }, { passive: false });
 
-        // 画面タップ時に pygbag の進行ブロック(MM.UME)と AudioContext を強制解除
-        function unlockPygbagMedia() {
-            // AudioContext の解除
+        // 画面タップ時に Canvas へフォーカスを与え、MM.UME を解除する
+        function activateCanvas() {
+            // AudioContext 解除
             if (typeof AudioContext !== 'undefined') {
                 var audioCtx = new (window.AudioContext || window.webkitAudioContext)();
                 if (audioCtx.state === 'suspended') {
                     audioCtx.resume();
                 }
             }
-            // pygbag の UME (User Media Engagement) フラグを強制判定
-            if (window.MM) {
-                window.MM.UME = true;
-            }
+            
+            // pygbag のフラグ解除
+            if (window.MM) { window.MM.UME = true; }
             if (window.platform && window.platform.window && window.platform.window.MM) {
                 window.platform.window.MM.UME = true;
             }
+
+            // Canvas にフォーカスをあてる
+            var cvs = document.getElementById('canvas');
+            if (cvs) {
+                cvs.focus();
+            }
         }
 
-        window.addEventListener('touchstart', unlockPygbagMedia, { once: false });
-        window.addEventListener('click', unlockPygbagMedia, { once: false });
+        window.addEventListener('touchstart', activateCanvas, { once: false });
+        window.addEventListener('click', activateCanvas, { once: false });
     </script>
 </body>
 </html>
