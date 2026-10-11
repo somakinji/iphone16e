@@ -433,7 +433,7 @@ frameborder="1"
     }
 
     </script>
-    <!-- ★ 1. iOS画面スクロール・バウンス防止（画面固定） -->
+    <!-- ★ 1. iOS画面スクロール・バウンス防止 CSS -->
     <style>
         html, body, canvas {
             touch-action: none !important;
@@ -446,25 +446,36 @@ frameborder="1"
         }
     </style>
 
-    <!-- ★ 2. iOSタッチ移動防止 & Retina画面エラー回避 & 音声解除 -->
+    <!-- ★ 2. タッチイベント・音声・pygbagメディアロック全自動解除 -->
     <script>
-        // iPhone (Retina) の devicePixelRatio エラー防止
+        // Retinaディスプレイの動作エラー回避
         window.devicePixelRatio = 1;
 
-        // タッチスクロール防止
+        // タッチ移動（スクロール）を防止
         document.addEventListener('touchmove', function(e) {
             e.preventDefault();
         }, { passive: false });
 
-        // 音声自動再生ブロック解除
-        window.addEventListener('touchstart', function() {
+        // 画面タップ時に pygbag の進行ブロック(MM.UME)と AudioContext を強制解除
+        function unlockPygbagMedia() {
+            // AudioContext の解除
             if (typeof AudioContext !== 'undefined') {
                 var audioCtx = new (window.AudioContext || window.webkitAudioContext)();
                 if (audioCtx.state === 'suspended') {
                     audioCtx.resume();
                 }
             }
-        }, { once: true });
+            // pygbag の UME (User Media Engagement) フラグを強制判定
+            if (window.MM) {
+                window.MM.UME = true;
+            }
+            if (window.platform && window.platform.window && window.platform.window.MM) {
+                window.platform.window.MM.UME = true;
+            }
+        }
+
+        window.addEventListener('touchstart', unlockPygbagMedia, { once: false });
+        window.addEventListener('click', unlockPygbagMedia, { once: false });
     </script>
 </body>
 </html>
