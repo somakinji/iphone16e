@@ -62,12 +62,20 @@ async def custom_site():
     # TODO: test for window.webkitAudioContext and block aio loop until gesture if accessing media manager play
     # before a gesture is recorded ( touch or click )
 
-    # test/wait user media interaction (強制スキップ設定)
-    platform.window.MM.UME = True
+    # test/wait user media interaction
+    if not platform.window.MM.UME:
 
-    # now that apk is mounted we have access to font cache
-    # but we need to fill __file__ that is not yet set
-    __import__(__name__).__file__ = main
+        # now that apk is mounted we have access to font cache
+        # but we need to fill __file__ that is not yet set
+        __import__(__name__).__file__ = main
+
+        # now make a prompt
+        msg  = "Ready to start ! Please click/touch page"
+        platform.window.infobox.innerText = msg
+        print("\n"*4, f"    * Waiting for media user engagement. {msg} *" , "\n"*4)
+
+        while not platform.window.MM.UME:
+            await asyncio.sleep(.1)
 
     # start async top level machinery if not started and add a console in any case if requested.
     await TopLevel_async_handler.start_toplevel(platform.shell, console=window.python.config.debug)
@@ -80,9 +88,6 @@ async def custom_site():
         platform.window.infobox.innerText = f"installing {pkg}"
 
     await shell.source(main, callback=ui_callback)
-
-    # if you don't reach that step
-    # your main.py has an infinite sync loop somewhere !
 
     platform.window.infobox.style.display = "none"
     platform.window.config.gui_divider = 1
@@ -425,7 +430,7 @@ frameborder="1"
     }
 
     </script>
-    <!-- ★ 1. iOS画面固定 CSS -->
+    <!-- ★ 1. iOS画面スクロール防止 CSS -->
     <style>
         html, body, canvas {
             touch-action: none !important;
@@ -438,7 +443,7 @@ frameborder="1"
         }
     </style>
 
-    <!-- ★ 2. タッチ時の AudioContext 解除 & キャンバスフォーカス -->
+    <!-- ★ 2. 強制ロック解除 & フォーカス維持 JS -->
     <script>
         window.devicePixelRatio = 1;
 
@@ -446,19 +451,29 @@ frameborder="1"
             e.preventDefault();
         }, { passive: false });
 
-        function onFirstTouch() {
+        function unlockAndFocus() {
+            // WebAudio ロック解除
             if (typeof AudioContext !== 'undefined') {
                 var audioCtx = new (window.AudioContext || window.webkitAudioContext)();
                 if (audioCtx.state === 'suspended') {
                     audioCtx.resume();
                 }
             }
+            
+            // pygbag のフラグ解除
+            if (window.MM) { window.MM.UME = true; }
+            if (window.platform && window.platform.window && window.platform.window.MM) {
+                window.platform.window.MM.UME = true;
+            }
+
+            // キャンバスへフォーカスを割り当て
             var cvs = document.getElementById('canvas');
-            if (cvs) cvs.focus();
+            if (cvs) { cvs.focus(); }
         }
 
-        window.addEventListener('touchstart', onFirstTouch, { once: true });
-        window.addEventListener('click', onFirstTouch, { once: true });
+        window.addEventListener('touchstart', unlockAndFocus, { capture: true });
+        window.addEventListener('click', unlockAndFocus, { capture: true });
     </script>
 </body>
 </html>
+    
