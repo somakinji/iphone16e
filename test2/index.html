@@ -446,15 +446,17 @@ frameborder="1"
         }
     </style>
 
-    <!-- ★ 2. iOSタッチ移動による画面ズレ防止 -->
+    <!-- ★ 2. iOSタッチ移動防止 & Retina画面エラー回避 & 音声解除 -->
     <script>
+        // iPhone (Retina) の devicePixelRatio エラー防止
+        window.devicePixelRatio = 1;
+
+        // タッチスクロール防止
         document.addEventListener('touchmove', function(e) {
             e.preventDefault();
         }, { passive: false });
-    </script>
 
-    <!-- ★ 3. iOS Web AudioContext 音声自動再生ブロック解除 -->
-    <script>
+        // 音声自動再生ブロック解除
         window.addEventListener('touchstart', function() {
             if (typeof AudioContext !== 'undefined') {
                 var audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -464,6 +466,5 @@ frameborder="1"
             }
         }, { once: true });
     </script>
-
 </body>
 </html>
