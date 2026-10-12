@@ -434,7 +434,7 @@ frameborder="1"
     }
 
     </script>
-    <!-- ★ 1. iOS画面スクロール防止 CSS & フォーカス輪郭オフ -->
+    <!-- ★ 1. iOS画面スクロール防止 CSS & フォーカス枠リセット -->
     <style>
         html, body, canvas {
             touch-action: none !important;
@@ -448,7 +448,7 @@ frameborder="1"
         }
     </style>
 
-    <!-- ★ 2. キャンバスフォーカス維持 & DISCARD 解除 JS -->
+    <!-- ★ 2. フォーカス維持 & AudioContext 復帰 JS -->
     <script>
         Object.defineProperty(window, 'devicePixelRatio', {
             get: function() { return 1; }
