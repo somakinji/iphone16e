@@ -434,7 +434,7 @@ frameborder="1"
     }
 
     </script>
-    <!-- ★ 1. iOS画面スクロール防止 CSS -->
+    <!-- ★ 1. iOS画面スクロール・バウンス防止 CSS -->
     <style>
         html, body, canvas {
             touch-action: none !important;
@@ -447,17 +447,21 @@ frameborder="1"
         }
     </style>
 
-    <!-- ★ 2. 強制ロック解除 & フォーカス維持スクリプト -->
+    <!-- ★ 2. WebAudio 復帰 & Canvas フォーカス保持 JS -->
     <script>
+        // Retinaディスプレイのピクセル比率エラーを抑制
         Object.defineProperty(window, 'devicePixelRatio', {
             get: function() { return 1; }
         });
 
+        // タッチ移動（画面スクロール）を防止
         document.addEventListener('touchmove', function(e) {
             e.preventDefault();
         }, { passive: false });
 
-        function forceUnlockPygbag() {
+        // タップ時に WebAudio ロック解除 & キャンバスフォーカスを適用
+        function handleUserInteraction() {
+            // WebAudio の AudioContext 停止を解除
             if (typeof AudioContext !== 'undefined') {
                 var audioCtx = new (window.AudioContext || window.webkitAudioContext)();
                 if (audioCtx.state === 'suspended') {
@@ -465,25 +469,21 @@ frameborder="1"
                 }
             }
 
-            if (window.MM) { window.MM.UME = true; }
-            if (window.platform && window.platform.window && window.platform.window.MM) {
-                window.platform.window.MM.UME = true;
+            // pygbag 内の AudioContext 保持オブジェクトに対しても resume を実行
+            if (window.SDL2 && window.SDL2.audioContext && window.SDL2.audioContext.state === 'suspended') {
+                window.SDL2.audioContext.resume();
             }
 
-            try {
-                if (window.python && window.python.PyRun_SimpleString) {
-                    window.python.PyRun_SimpleString("import platform; platform.window.MM.UME = True");
-                }
-            } catch(e) {}
-
+            // Canvas にフォーカスを与えて DISCARD : blur を回避
             var cvs = document.getElementById('canvas');
-            if (cvs) { cvs.focus(); }
+            if (cvs) {
+                cvs.focus();
+            }
         }
 
-        window.addEventListener('touchstart', forceUnlockPygbag, { capture: true, once: false });
-        window.addEventListener('click', forceUnlockPygbag, { capture: true, once: false });
-
-        setInterval(forceUnlockPygbag, 500);
+        // 画面上のあらゆるタップ・クリックで一括起動
+        window.addEventListener('touchstart', handleUserInteraction, { capture: true, once: false });
+        window.addEventListener('click', handleUserInteraction, { capture: true, once: false });
     </script>
 </body>
 </html>
