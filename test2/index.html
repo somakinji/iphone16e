@@ -148,7 +148,7 @@ config = {
     user_canvas : 0,
     user_canvas_managed : 0,
     gui_divider : 2,
-    ume_block : 0, // ★ 1 から 0 に変更（Media User Engagement のブロックを完全無効化）
+    ume_block : 0, // ★ 0 に変更して pygbag のメディアブロック自体を無効化
     can_close : 0,
     archive : "test2",
     gui_debug : 2,
@@ -446,7 +446,7 @@ frameborder="1"
         }
     </style>
 
-    <!-- ★ 2. フォーカス維持 & 音声解除 JS -->
+    <!-- ★ 2. 強制 UME 解除 & フォーカス維持スクリプト -->
     <script>
         Object.defineProperty(window, 'devicePixelRatio', {
             get: function() { return 1; }
@@ -456,7 +456,7 @@ frameborder="1"
             e.preventDefault();
         }, { passive: false });
 
-        function handleTouchActivation() {
+        function applyUnlock() {
             if (typeof AudioContext !== 'undefined') {
                 var audioCtx = new (window.AudioContext || window.webkitAudioContext)();
                 if (audioCtx.state === 'suspended') {
@@ -464,14 +464,29 @@ frameborder="1"
                 }
             }
 
-            var cvs = document.getElementById('canvas');
-            if (cvs) {
-                cvs.focus();
+            if (window.MM) { window.MM.UME = true; }
+            if (window.platform && window.platform.window && window.platform.window.MM) {
+                window.platform.window.MM.UME = true;
             }
+
+            try {
+                if (window.python && window.python.PyRun_SimpleString) {
+                    window.python.PyRun_SimpleString("import platform; platform.window.MM.UME = True");
+                }
+            } catch(e) {}
+
+            var cvs = document.getElementById('canvas');
+            if (cvs) { cvs.focus(); }
         }
 
-        window.addEventListener('touchstart', handleTouchActivation, { capture: true, once: false });
-        window.addEventListener('click', handleTouchActivation, { capture: true, once: false });
+        // タップイベントでの実行
+        window.addEventListener('touchstart', applyUnlock, { capture: true, once: false });
+        window.addEventListener('click', applyUnlock, { capture: true, once: false });
+
+        // WASM起動遅延対策：定期チェックによる強制解除
+        setInterval(function() {
+            applyUnlock();
+        }, 500);
     </script>
 </body>
 </html>
