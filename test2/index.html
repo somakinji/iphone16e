@@ -447,43 +447,38 @@ frameborder="1"
         }
     </style>
 
-    <!-- ★ 2. WebAudio 復帰 & Canvas フォーカス保持 JS -->
+    <!-- ★ 2. iOS Safari 互換 AudioContext 復帰 & キャンバスフォーカス JS -->
     <script>
-        // Retinaディスプレイのピクセル比率エラーを抑制
         Object.defineProperty(window, 'devicePixelRatio', {
             get: function() { return 1; }
         });
 
-        // タッチ移動（画面スクロール）を防止
         document.addEventListener('touchmove', function(e) {
             e.preventDefault();
         }, { passive: false });
 
-        // タップ時に WebAudio ロック解除 & キャンバスフォーカスを適用
-        function handleUserInteraction() {
-            // WebAudio の AudioContext 停止を解除
-            if (typeof AudioContext !== 'undefined') {
-                var audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                if (audioCtx.state === 'suspended') {
+        function handleUserInteraction(e) {
+            // SDL2 / WebAudio の音声を安全に復帰
+            try {
+                var audioCtx = (window.SDL2 && window.SDL2.audioContext) || window.audioContext;
+                if (audioCtx && audioCtx.state === 'suspended') {
                     audioCtx.resume();
                 }
+            } catch (err) {
+                console.warn(err);
             }
 
-            // pygbag 内の AudioContext 保持オブジェクトに対しても resume を実行
-            if (window.SDL2 && window.SDL2.audioContext && window.SDL2.audioContext.state === 'suspended') {
-                window.SDL2.audioContext.resume();
-            }
-
-            // Canvas にフォーカスを与えて DISCARD : blur を回避
+            // Canvas にフォーカスを移動して DISCARD : blur を解除
             var cvs = document.getElementById('canvas');
             if (cvs) {
                 cvs.focus();
             }
         }
 
-        // 画面上のあらゆるタップ・クリックで一括起動
-        window.addEventListener('touchstart', handleUserInteraction, { capture: true, once: false });
-        window.addEventListener('click', handleUserInteraction, { capture: true, once: false });
+        // touchstart と touchend の両方でイベントを取得
+        window.addEventListener('touchstart', handleUserInteraction, { capture: true, passive: true });
+        window.addEventListener('touchend', handleUserInteraction, { capture: true, passive: true });
+        window.addEventListener('click', handleUserInteraction, { capture: true, passive: true });
     </script>
 </body>
 </html>
