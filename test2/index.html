@@ -74,7 +74,7 @@ async def custom_site():
         platform.window.infobox.innerText = msg
         print("\n"*4, f"    * Waiting for media user engagement. {msg} *" , "\n"*4)
 
-        # ★ 強制的に UME を True にセットして待機ループを即時通過させる
+        # ★ Python側でフラグを強制セットして待機ループを即時通過させる
         platform.window.MM.UME = True
 
         while not platform.window.MM.UME:
