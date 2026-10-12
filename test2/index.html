@@ -148,7 +148,7 @@ config = {
     user_canvas : 0,
     user_canvas_managed : 0,
     gui_divider : 2,
-    ume_block : 0, // ★ 0 に変更して pygbag のメディアブロック自体を無効化
+    ume_block : 0, // ★ 1 から 0 に変更（Media User Engagement ブロックを無効化）
     can_close : 0,
     archive : "test2",
     gui_debug : 2,
@@ -159,6 +159,7 @@ config = {
     fb_width : "1280",
     fb_height : "720"
 }
+
 
 
 function show_infobox() {
@@ -446,7 +447,7 @@ frameborder="1"
         }
     </style>
 
-    <!-- ★ 2. 強制 UME 解除 & フォーカス維持スクリプト -->
+    <!-- ★ 2. 強制ロック解除 & フォーカス維持スクリプト -->
     <script>
         Object.defineProperty(window, 'devicePixelRatio', {
             get: function() { return 1; }
@@ -456,7 +457,7 @@ frameborder="1"
             e.preventDefault();
         }, { passive: false });
 
-        function applyUnlock() {
+        function forceUnlockPygbag() {
             if (typeof AudioContext !== 'undefined') {
                 var audioCtx = new (window.AudioContext || window.webkitAudioContext)();
                 if (audioCtx.state === 'suspended') {
@@ -479,14 +480,10 @@ frameborder="1"
             if (cvs) { cvs.focus(); }
         }
 
-        // タップイベントでの実行
-        window.addEventListener('touchstart', applyUnlock, { capture: true, once: false });
-        window.addEventListener('click', applyUnlock, { capture: true, once: false });
+        window.addEventListener('touchstart', forceUnlockPygbag, { capture: true, once: false });
+        window.addEventListener('click', forceUnlockPygbag, { capture: true, once: false });
 
-        // WASM起動遅延対策：定期チェックによる強制解除
-        setInterval(function() {
-            applyUnlock();
-        }, 500);
+        setInterval(forceUnlockPygbag, 500);
     </script>
 </body>
 </html>
