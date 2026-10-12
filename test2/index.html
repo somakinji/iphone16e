@@ -446,7 +446,7 @@ frameborder="1"
         }
     </style>
 
-    <!-- ★ 2. 強制ロック解除 & フォーカス維持 JS -->
+    <!-- ★ 2. Python 待機フラグ強制突破 & フォーカス獲得 JS -->
     <script>
         window.devicePixelRatio = 1;
 
@@ -454,23 +454,38 @@ frameborder="1"
             e.preventDefault();
         }, { passive: false });
 
-        function unlockAndFocus() {
+        function forceUnlockPygbag() {
+            // AudioContext 解除
             if (typeof AudioContext !== 'undefined') {
                 var audioCtx = new (window.AudioContext || window.webkitAudioContext)();
                 if (audioCtx.state === 'suspended') {
                     audioCtx.resume();
                 }
             }
+
+            // JavaScript / WebAssembly 側の UME フラグを全方位で True に強制設定
             if (window.MM) { window.MM.UME = true; }
             if (window.platform && window.platform.window && window.platform.window.MM) {
                 window.platform.window.MM.UME = true;
             }
+
+            # Python のインタープリタが存在する場合、内部の MM.UME も True に書き換え
+            try {
+                if (window.python && window.python.PyRun_SimpleString) {
+                    window.python.PyRun_SimpleString("import platform; platform.window.MM.UME = True");
+                }
+            } catch(e) {}
+
+            // キャンバスにフォーカスを当てて DISCARD : blur を回避
             var cvs = document.getElementById('canvas');
-            if (cvs) { cvs.focus(); }
+            if (cvs) {
+                cvs.focus();
+            }
         }
 
-        window.addEventListener('touchstart', unlockAndFocus);
-        window.addEventListener('click', unlockAndFocus);
+        // タップ / クリックの両方で強制解除を呼び出し
+        window.addEventListener('touchstart', forceUnlockPygbag, { capture: true, once: false });
+        window.addEventListener('click', forceUnlockPygbag, { capture: true, once: false });
     </script>
 </body>
 </html>
