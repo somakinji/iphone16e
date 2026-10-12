@@ -446,16 +446,20 @@ frameborder="1"
         }
     </style>
 
-    <!-- ★ 2. 構文エラー修正版：Python 待機フラグ強制解除 & フォーカス維持 JS -->
+    <!-- ★ 2. 構文エラー修復＆メディアロック解除 JS -->
     <script>
-        window.devicePixelRatio = 1;
+        // Retinaディスプレイのピクセル比率エラーを抑制
+        Object.defineProperty(window, 'devicePixelRatio', {
+            get: function() { return 1; }
+        });
 
+        // タッチ移動（スクロール）を防止
         document.addEventListener('touchmove', function(e) {
             e.preventDefault();
         }, { passive: false });
 
         function forceUnlockPygbag() {
-            // WebAudio ロック解除
+            // AudioContext 解除
             if (typeof AudioContext !== 'undefined') {
                 var audioCtx = new (window.AudioContext || window.webkitAudioContext)();
                 if (audioCtx.state === 'suspended') {
@@ -463,13 +467,13 @@ frameborder="1"
                 }
             }
 
-            // JavaScript / WebAssembly 側の UME フラグを強制解除
+            // JavaScript / WebAssembly 側の UME フラグを解除
             if (window.MM) { window.MM.UME = true; }
             if (window.platform && window.platform.window && window.platform.window.MM) {
                 window.platform.window.MM.UME = true;
             }
 
-            // Python インタープリタ経由で内部フラグを True に書き換え (JSコメント // を使用)
+            // Python インタープリタ内部の MM.UME を書き換え (JSコメント // を使用)
             try {
                 if (window.python && window.python.PyRun_SimpleString) {
                     window.python.PyRun_SimpleString("import platform; platform.window.MM.UME = True");
