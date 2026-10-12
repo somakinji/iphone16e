@@ -434,7 +434,7 @@ frameborder="1"
     }
 
     </script>
-    <!-- ★ 1. iOS画面スクロール防止 CSS & Canvasフォーカス強調 -->
+    <!-- ★ 1. iOS画面スクロール防止 CSS & フォーカス輪郭オフ -->
     <style>
         html, body, canvas {
             touch-action: none !important;
@@ -455,7 +455,7 @@ frameborder="1"
             get: function() { return 1; }
         });
 
-        // タッチ移動（画面スクロール）を防止
+        // タッチスクロール防止
         document.addEventListener('touchmove', function(e) {
             e.preventDefault();
         }, { passive: false });
@@ -463,7 +463,6 @@ frameborder="1"
         function ensureCanvasFocus() {
             var cvs = document.getElementById('canvas');
             if (cvs) {
-                // キャンバスがフォーカス可能になるよう tabindex を付与
                 if (!cvs.hasAttribute('tabindex')) {
                     cvs.setAttribute('tabindex', '0');
                 }
@@ -484,7 +483,7 @@ frameborder="1"
         window.addEventListener('touchend', ensureCanvasFocus, { capture: true, passive: true });
         window.addEventListener('click', ensureCanvasFocus, { capture: true, passive: true });
 
-        // ポップアップやフォーカス外れ時に自動でフォーカスを引き戻す
+        // フォーカスが切れた際に自動復帰
         window.addEventListener('blur', function() {
             setTimeout(ensureCanvasFocus, 100);
         });
