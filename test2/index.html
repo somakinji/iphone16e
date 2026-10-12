@@ -434,7 +434,7 @@ frameborder="1"
     }
 
     </script>
-    <!-- ★ 1. iOS画面スクロール防止 CSS -->
+    <!-- ★ 1. iOS画面スクロール防止 CSS & Canvasフォーカス強調 -->
     <style>
         html, body, canvas {
             touch-action: none !important;
@@ -444,29 +444,33 @@ frameborder="1"
             height: 100% !important;
             -webkit-user-select: none !important;
             user-select: none !important;
+            outline: none !important;
         }
     </style>
 
-    <!-- ★ 2. キャンバスフォーカス自動維持 & AudioContext 復帰 JS -->
+    <!-- ★ 2. 強制キャンバスフォーカス & DISCARD 解除 JS -->
     <script>
-        // Retinaディスプレイの比率エラー防止
+        // Retinaディスプレイのピクセル比率エラー防止
         Object.defineProperty(window, 'devicePixelRatio', {
             get: function() { return 1; }
         });
 
-        // タッチスクロール防止
+        // タッチ移動（画面スクロール）を防止
         document.addEventListener('touchmove', function(e) {
             e.preventDefault();
         }, { passive: false });
 
-        // キャンバスへフォーカスを割り当てる関数
-        function claimCanvasFocus() {
+        function ensureCanvasFocus() {
             var cvs = document.getElementById('canvas');
             if (cvs) {
+                // キャンバスがフォーカス可能になるよう tabindex を付与
+                if (!cvs.hasAttribute('tabindex')) {
+                    cvs.setAttribute('tabindex', '0');
+                }
                 cvs.focus();
             }
 
-            // WebAudio が停止中の場合は復帰させる
+            // AudioContext 停止を解除
             try {
                 var audioCtx = (window.SDL2 && window.SDL2.audioContext) || window.audioContext;
                 if (audioCtx && audioCtx.state === 'suspended') {
@@ -476,17 +480,14 @@ frameborder="1"
         }
 
         // タップ / クリック時にフォーカスを獲得
-        window.addEventListener('touchstart', claimCanvasFocus, { capture: true, passive: true });
-        window.addEventListener('touchend', claimCanvasFocus, { capture: true, passive: true });
-        window.addEventListener('click', claimCanvasFocus, { capture: true, passive: true });
+        window.addEventListener('touchstart', ensureCanvasFocus, { capture: true, passive: true });
+        window.addEventListener('touchend', ensureCanvasFocus, { capture: true, passive: true });
+        window.addEventListener('click', ensureCanvasFocus, { capture: true, passive: true });
 
-        // 定期チェックでキャンバスのフォーカスを維持（DISCARD : blur 防止）
-        setInterval(function() {
-            var cvs = document.getElementById('canvas');
-            if (cvs && document.activeElement !== cvs) {
-                cvs.focus();
-            }
-        }, 1000);
+        // ポップアップやフォーカス外れ時に自動でフォーカスを引き戻す
+        window.addEventListener('blur', function() {
+            setTimeout(ensureCanvasFocus, 100);
+        });
     </script>
 </body>
 </html>
