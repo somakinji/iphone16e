@@ -74,9 +74,6 @@ async def custom_site():
         platform.window.infobox.innerText = msg
         print("\n"*4, f"    * Waiting for media user engagement. {msg} *" , "\n"*4)
 
-        # ★ Python側でフラグを強制セットして待機ループを即時通過させる
-        platform.window.MM.UME = True
-
         while not platform.window.MM.UME:
             await asyncio.sleep(.1)
 
@@ -145,14 +142,13 @@ asyncio.run( custom_site() )
 
 
 // this dict is available under PyConfig.config from __main__
-
 config = {
     xtermjs : "1" ,
     _sdl2 : "canvas",
     user_canvas : 0,
     user_canvas_managed : 0,
     gui_divider : 2,
-    ume_block : 1,
+    ume_block : 0, // ★ 1 から 0 に変更（Media User Engagement のブロックを完全無効化）
     can_close : 0,
     archive : "test2",
     gui_debug : 2,
@@ -163,6 +159,7 @@ config = {
     fb_width : "1280",
     fb_height : "720"
 }
+
 
 function show_infobox() {
     infobox.style.display = "block";
@@ -449,20 +446,17 @@ frameborder="1"
         }
     </style>
 
-    <!-- ★ 2. キャンバスフォーカス維持 & WebAudio解除 JS -->
+    <!-- ★ 2. フォーカス維持 & 音声解除 JS -->
     <script>
-        // Retinaディスプレイのピクセル比率エラーを抑制
         Object.defineProperty(window, 'devicePixelRatio', {
             get: function() { return 1; }
         });
 
-        // タッチ移動（スクロール）を防止
         document.addEventListener('touchmove', function(e) {
             e.preventDefault();
         }, { passive: false });
 
         function handleTouchActivation() {
-            // AudioContext 解除
             if (typeof AudioContext !== 'undefined') {
                 var audioCtx = new (window.AudioContext || window.webkitAudioContext)();
                 if (audioCtx.state === 'suspended') {
@@ -470,7 +464,6 @@ frameborder="1"
                 }
             }
 
-            // キャンバスにフォーカスをあてて DISCARD : blur を回避
             var cvs = document.getElementById('canvas');
             if (cvs) {
                 cvs.focus();
