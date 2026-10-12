@@ -448,14 +448,12 @@ frameborder="1"
         }
     </style>
 
-    <!-- ★ 2. 強制キャンバスフォーカス & DISCARD 解除 JS -->
+    <!-- ★ 2. キャンバスフォーカス維持 & DISCARD 解除 JS -->
     <script>
-        // Retinaディスプレイのピクセル比率エラー防止
         Object.defineProperty(window, 'devicePixelRatio', {
             get: function() { return 1; }
         });
 
-        // タッチスクロール防止
         document.addEventListener('touchmove', function(e) {
             e.preventDefault();
         }, { passive: false });
@@ -469,7 +467,6 @@ frameborder="1"
                 cvs.focus();
             }
 
-            // AudioContext 停止を解除
             try {
                 var audioCtx = (window.SDL2 && window.SDL2.audioContext) || window.audioContext;
                 if (audioCtx && audioCtx.state === 'suspended') {
@@ -478,12 +475,10 @@ frameborder="1"
             } catch (e) {}
         }
 
-        // タップ / クリック時にフォーカスを獲得
         window.addEventListener('touchstart', ensureCanvasFocus, { capture: true, passive: true });
         window.addEventListener('touchend', ensureCanvasFocus, { capture: true, passive: true });
         window.addEventListener('click', ensureCanvasFocus, { capture: true, passive: true });
 
-        // フォーカスが切れた際に自動復帰
         window.addEventListener('blur', function() {
             setTimeout(ensureCanvasFocus, 100);
         });
