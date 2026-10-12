@@ -94,6 +94,9 @@ async def custom_site():
     platform.window.window_resize()
     print("default.tmpl: done")
 
+    # ★ ここを追加（キャンバスに強制フォーカスを当てて DISCARD を防止） ★
+    platform.window.canvas.focus()
+
     shell.interactive()
     
 
@@ -452,27 +455,22 @@ frameborder="1"
         }, { passive: false });
 
         function unlockAndFocus() {
-            // WebAudio ロック解除
             if (typeof AudioContext !== 'undefined') {
                 var audioCtx = new (window.AudioContext || window.webkitAudioContext)();
                 if (audioCtx.state === 'suspended') {
                     audioCtx.resume();
                 }
             }
-            
-            // pygbag のフラグ解除
             if (window.MM) { window.MM.UME = true; }
             if (window.platform && window.platform.window && window.platform.window.MM) {
                 window.platform.window.MM.UME = true;
             }
-
-            // キャンバスへフォーカスを割り当て
             var cvs = document.getElementById('canvas');
             if (cvs) { cvs.focus(); }
         }
 
-        window.addEventListener('touchstart', unlockAndFocus, { capture: true });
-        window.addEventListener('click', unlockAndFocus, { capture: true });
+        window.addEventListener('touchstart', unlockAndFocus);
+        window.addEventListener('click', unlockAndFocus);
     </script>
 </body>
 </html>
