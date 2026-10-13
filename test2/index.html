@@ -434,32 +434,43 @@ frameborder="1"
     }
 
     </script>
-    <!-- ★ 1. iOS画面スクロール防止 CSS & フォーカス枠リセット -->
+    <!-- ★ 1. 画面レイアウトとタッチスクロール防止 CSS -->
     <style>
-        html, body, canvas {
-            touch-action: none !important;
-            overflow: hidden !important;
-            position: fixed !important;
+        html, body {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background-color: #000;
+            touch-action: none;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        #canvas {
             width: 100% !important;
             height: 100% !important;
-            -webkit-user-select: none !important;
-            user-select: none !important;
+            display: block !important;
             outline: none !important;
-            -webkit-tap-highlight-color: transparent !important;
+            -webkit-tap-highlight-color: transparent;
         }
     </style>
 
-    <!-- ★ 2. iOS Safari 準拠 タッチ直結フォーカス＆AudioContext復帰 JS -->
+    <!-- ★ 2. iOS Safari 互換 フォーカス & WebAudio 復帰 JS -->
     <script>
+        // ピクセル比の調整
         Object.defineProperty(window, 'devicePixelRatio', {
             get: function() { return 1; }
         });
 
+        // タッチスクロールを制御
         document.addEventListener('touchmove', function(e) {
             e.preventDefault();
         }, { passive: false });
 
-        function handleUserTouch(e) {
+        // ユーザーインタラクション時にキャンバスのフォーカスとAudioContextをアンロック
+        function unlockAudioAndFocus() {
             var cvs = document.getElementById('canvas');
             if (cvs) {
                 if (!cvs.hasAttribute('tabindex')) {
@@ -468,6 +479,7 @@ frameborder="1"
                 cvs.focus();
             }
 
+            // SDL2 / WebAudio の停止状態を解く
             try {
                 var audioCtx = (window.SDL2 && window.SDL2.audioContext) || window.audioContext;
                 if (audioCtx && audioCtx.state === 'suspended') {
@@ -476,9 +488,10 @@ frameborder="1"
             } catch (err) {}
         }
 
-        window.addEventListener('touchstart', handleUserTouch, { capture: true, passive: false });
-        window.addEventListener('touchend', handleUserTouch, { capture: true, passive: false });
-        window.addEventListener('mousedown', handleUserTouch, { capture: true, passive: false });
+        // イベントバインド
+        ['touchstart', 'touchend', 'click'].forEach(function(evt) {
+            window.addEventListener(evt, unlockAudioAndFocus, { capture: true, passive: true });
+        });
     </script>
 </body>
 </html>
