@@ -434,7 +434,7 @@ frameborder="1"
     }
 
     </script>
-    <!-- ★ 1. iOS画面スクロール・タップハイライト防止 CSS -->
+    <!-- ★ 1. iOS画面スクロール防止 CSS & フォーカス枠リセット -->
     <style>
         html, body, canvas {
             touch-action: none !important;
@@ -449,7 +449,7 @@ frameborder="1"
         }
     </style>
 
-    <!-- ★ 2. iOS Safari 準拠 タッチ直結フォーカス＆AudioContext復帰 -->
+    <!-- ★ 2. iOS Safari 準拠 タッチ直結フォーカス＆AudioContext復帰 JS -->
     <script>
         Object.defineProperty(window, 'devicePixelRatio', {
             get: function() { return 1; }
@@ -459,18 +459,15 @@ frameborder="1"
             e.preventDefault();
         }, { passive: false });
 
-        // ユーザーの直接タッチ時に同期実行するフォーカス付与処理
         function handleUserTouch(e) {
             var cvs = document.getElementById('canvas');
             if (cvs) {
                 if (!cvs.hasAttribute('tabindex')) {
                     cvs.setAttribute('tabindex', '0');
                 }
-                // タッチイベントの文脈内で直接フォーカスを当てる
                 cvs.focus();
             }
 
-            // WebAudio の再開（サスペンド解除）
             try {
                 var audioCtx = (window.SDL2 && window.SDL2.audioContext) || window.audioContext;
                 if (audioCtx && audioCtx.state === 'suspended') {
@@ -479,7 +476,6 @@ frameborder="1"
             } catch (err) {}
         }
 
-        // capture: true かつ passive: false で確実にイベントを捕捉
         window.addEventListener('touchstart', handleUserTouch, { capture: true, passive: false });
         window.addEventListener('touchend', handleUserTouch, { capture: true, passive: false });
         window.addEventListener('mousedown', handleUserTouch, { capture: true, passive: false });
