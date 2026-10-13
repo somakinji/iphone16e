@@ -434,7 +434,7 @@ frameborder="1"
     }
 
     </script>
-    <!-- ★ 1. iOS画面スクロール防止 CSS & フォーカス枠リセット -->
+    <!-- ★ 1. iOS画面スクロール・タップハイライト防止 CSS -->
     <style>
         html, body, canvas {
             touch-action: none !important;
@@ -445,10 +445,11 @@ frameborder="1"
             -webkit-user-select: none !important;
             user-select: none !important;
             outline: none !important;
+            -webkit-tap-highlight-color: transparent !important;
         }
     </style>
 
-    <!-- ★ 2. フォーカス維持 & AudioContext 復帰 JS -->
+    <!-- ★ 2. iOS Safari 準拠 タッチ直結フォーカス＆AudioContext復帰 -->
     <script>
         Object.defineProperty(window, 'devicePixelRatio', {
             get: function() { return 1; }
@@ -458,30 +459,30 @@ frameborder="1"
             e.preventDefault();
         }, { passive: false });
 
-        function ensureCanvasFocus() {
+        // ユーザーの直接タッチ時に同期実行するフォーカス付与処理
+        function handleUserTouch(e) {
             var cvs = document.getElementById('canvas');
             if (cvs) {
                 if (!cvs.hasAttribute('tabindex')) {
                     cvs.setAttribute('tabindex', '0');
                 }
+                // タッチイベントの文脈内で直接フォーカスを当てる
                 cvs.focus();
             }
 
+            // WebAudio の再開（サスペンド解除）
             try {
                 var audioCtx = (window.SDL2 && window.SDL2.audioContext) || window.audioContext;
                 if (audioCtx && audioCtx.state === 'suspended') {
                     audioCtx.resume();
                 }
-            } catch (e) {}
+            } catch (err) {}
         }
 
-        window.addEventListener('touchstart', ensureCanvasFocus, { capture: true, passive: true });
-        window.addEventListener('touchend', ensureCanvasFocus, { capture: true, passive: true });
-        window.addEventListener('click', ensureCanvasFocus, { capture: true, passive: true });
-
-        window.addEventListener('blur', function() {
-            setTimeout(ensureCanvasFocus, 100);
-        });
+        // capture: true かつ passive: false で確実にイベントを捕捉
+        window.addEventListener('touchstart', handleUserTouch, { capture: true, passive: false });
+        window.addEventListener('touchend', handleUserTouch, { capture: true, passive: false });
+        window.addEventListener('mousedown', handleUserTouch, { capture: true, passive: false });
     </script>
 </body>
 </html>
