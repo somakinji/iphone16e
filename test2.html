@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <!-- スマホで画面サイズを最適化し連打時の勝手なズームを防ぐ設定 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>iphoneミニキャッチゲーム</title>
+    <style>
+        body{
+            font-family: sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 15px;
+            background-color: #fafafa;
+            /*スマホ長押し時のテキスト選択を防止*/
+            user-select: none;
+            -webkit-user-select: none;
+        }
+        h1{
+            font-size: 20px;
+            margin: 5px 0;
+        }
+        canvas{
+            border: 2px solid #333;
+            background-color: #f4f4f9;
+            display: block;
+            margin: 10px auto;
+            max-width: 100%; /*スマホ画面幅に収める*/
+            touch-action: none;
+        }
+        .controls{
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 15px;
+        }
+        .btn{
+            width: 120px;
+            height: 60px;
+            font-size: 24px;
+            font-weight: bold;
+            background-color: #0077b6;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            touch-action: manipulation; /*スマホでのタッチ操作を最適化*/
+        }
+        .btn:active{
+            background-color: #023e8a;
+        }
+        
+    </style>
+</head>
+<body
+
+    <h1>赤い箱をキャッチ!</h1>
+    <p>スコア: <span id="score">10</span>点</p>
+
+    <canvas id="gameCanvas" width="340" height="400"></canvas>
+
+    <!-- iphone用の操作ボタン -->
+    <div class="controls">
+        <button class="btn" id="leftBtn"> ◀️　左</button>
+        <button class="btn" id="rightBtn">右　▶️</button>
+    </div>
+
+    <script src="test2.js"></script>
+    
+</body>
+</html>
