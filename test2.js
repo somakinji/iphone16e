@@ -40,13 +40,13 @@ const leftBtn = document.getElementById("leftBtn");
 const rightBtn = document.getElementById("rightBtn");
 
 //左ボタン
-leftBtn.addEventListener("touchstart", () => {e.preventDefault(); move.left=true;});
+leftBtn.addEventListener("touchstart", (e) => {e.preventDefault(); move.left=true;});
 leftBtn.addEventListener("touchend", () => { move.left=false;});
 leftBtn.addEventListener("mousedown", () => { move.left=true;});
 leftBtn.addEventListener("mouseup", () => { move.left=false;});
 
 //右ボタン
-rightBtn.addEventListener("touchstart", () => {e.preventDefault(); move.right=true;});
+rightBtn.addEventListener("touchstart", (e) => {e.preventDefault(); move.right=true;});
 rightBtn.addEventListener("touchend", () => { move.right=false;});
 rightBtn.addEventListener("mousedown", () => { move.right=true;});
 rightBtn.addEventListener("mouseup", () => { move.right=false;});
